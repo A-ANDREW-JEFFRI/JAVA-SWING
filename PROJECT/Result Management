@@ -1,0 +1,373 @@
+package java_swing; 
+import javax.swing.*;
+public class main {
+	public static void main(String args[]) {
+		JFrame f =new JFrame();
+		new ug_or_pg_page();	//Calling the constructor
+	}
+}
+
+//////////////
+
+package java_swing;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.*;
+
+public class ug_or_pg_page implements ActionListener
+{
+	JFrame f=new JFrame("RESULT PORTAL");
+	JButton b1= new JButton("UG Result");
+	JButton b2= new JButton("PG Result");
+	JLabel l;
+	public ug_or_pg_page() 
+	{
+		f.setBounds(400,100,0,0);
+		f.getContentPane().setBackground(new Color(156, 226, 240));
+		
+		l=new JLabel("RESULT PORTAL");
+		l.setBounds(90,50,500,80);
+		l.setFont(new Font("cambria",Font.BOLD,43));
+		l.setForeground(Color.black);
+	 	
+	 	b1.setBounds(150,160,200,50);
+	 	b1.setBackground(Color.black);
+	 	b1.setForeground(Color.white);
+	 	b1.setFocusable(false);
+	 	b1.setFont(new Font("cambria",Font.BOLD,30));
+	 	b1.addActionListener(this);
+	 	
+	 	b2.setBounds(150,260,200,50);
+	 	b2.setBackground(Color.black);
+	 	b2.setForeground(Color.white);
+	 	b2.setFocusable(false);
+	 	b2.setFont(new Font("cambria",Font.BOLD,30));
+	 	b2.setFocusable(false);
+	 	b2.addActionListener(this);
+	 	
+	 	f.add(l);
+	 	f.add(b1);
+	 	f.add(b2);
+	 	f.setSize(500,500);
+	 	f.setLayout(null);
+	 	f.setVisible(true);
+	 	f.setResizable(false);	 	
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+		if (e.getSource() == b1) 
+		{
+			new reg_no();
+			f.dispose();
+		}
+		else if(e.getSource()== b2)
+		{
+			f.dispose();
+			new reg_no();
+		}
+		
+	}
+}
+
+/////////////
+
+package java_swing;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
+public class reg_no implements ActionListener 
+{
+	String data_base_value;
+	JFrame f=new JFrame("RESULT PORTAL");
+	JLabel l=new JLabel("REGISTER NO:");
+	JButton b= new JButton("Login");
+	JTextField tf=new JTextField();
+	
+	public reg_no()
+	{
+		f.setBounds(400,100,0,0);
+		f.getContentPane().setBackground(new Color(156, 226, 240));		// Set the background color
+		
+		l.setBounds(110,50,500,80);
+		l.setFont(new Font("cambria",Font.BOLD,40));	// Set the size & font of the letter
+		l.setForeground(Color.black);	// Set the color of the letter
+		
+		tf.setBounds(100,160,300,50);
+		
+	 	b.setBounds(300,260,100,50);
+	 	b.setBackground(Color.black);
+	 	b.setForeground(Color.white);
+	 	b.setFocusable(false);		// Remove the border of the text in button
+	 	b.setFont(new Font("cambria",Font.BOLD,20));
+	 	b.addActionListener(this);		//Add actionlistener for button
+	 	
+	 	f.add(tf);
+	 	f.add(l);
+	 	f.add(b);
+	 	f.setSize(500,500);
+	 	f.setLayout(null);
+	 	f.setVisible(true);
+	 	f.setResizable(false);
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+		//JDBC Connection
+		try 
+		{
+			String url = "jdbc:mysql://localhost:3306/result_management";
+			String user_name = "root";
+			String user_password = "mysql@jeffri";
+			String query = "Select * from results";
+			
+			Class.forName("com.mysql.cj.jdbc.Driver");   // It is the method which help to load the class
+			Connection con = DriverManager.getConnection(url,user_name,user_password);     // DriverManager is the class which has getConnection method, getconnection-instance of connection
+			Statement st = con.createStatement();     // createStatement return the object of the Statement
+			ResultSet rs = st.executeQuery(query);    //execute the query and store in rs
+			
+			String input_value=tf.getText();
+			int a=input_value.length();
+			int count=-1;
+			
+			for(int i=0;i<100;i++)
+			{
+				rs.next();
+				data_base_value = rs.getString(2);
+				count++;
+				
+				if(data_base_value.equals(input_value))
+					break;
+			}
+			if(a==0) 
+			{
+				JOptionPane.showMessageDialog(null, "Invalid number");
+			}
+			else if(data_base_value.equals(input_value) && e.getSource()==b )
+			{
+				JOptionPane.showMessageDialog(null, "Successful");
+				new java_swing.result(count);
+				f.dispose();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, "Invalid number");
+			}
+			st.close();
+			con.close();
+		}
+		catch(Exception f)
+		{
+			JOptionPane.showMessageDialog(null, "Invalid number");
+		}
+	}
+}
+
+///////////////
+
+package java_swing;
+
+import java.awt.Color;
+import com.mysql.cj.jdbc.result.ResultSetMetaData;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
+public class result
+{
+	JTable t= new JTable();
+	JFrame f;
+	JLabel l1;
+	JLabel l2;
+	JLabel l3;
+	JLabel l4;
+	JPanel p;
+	JLabel l111;
+	JLabel l222;
+	JLabel l444;
+	JLabel l555;
+	
+	result(int count)
+	{
+		int n=count+5;
+		
+		t.setBounds(40,170,530, 80);
+		
+		f=new JFrame("RESULT PORTAL");
+		f.setBounds(370,200,0,0);
+		f.getContentPane().setBackground(new Color(156, 226, 240));
+		
+		l1=new JLabel("NAME");
+		l1.setBounds(40,30,100,40);
+		
+		l2=new JLabel("REGISTER NUMBER");
+		l2.setBounds(40,55,200,40);
+		
+		l3=new JLabel("BRANCH");
+		l3.setBounds(40,80,100,40);
+		
+		l4=new JLabel("NUMBER OF ARREAR");
+		l4.setBounds(40,105,200,40);
+		
+		p=new JPanel();
+		p.setBounds(40,150,530,20);
+		p.setBackground(new Color(40, 47, 56));
+		
+		l111=new JLabel("SEMESTER");
+		l111.setBounds(80,140,100,40);
+		l111.setForeground(Color.white);
+		
+		l222=new JLabel("SUBJECT CODE");
+		l222.setBounds(190,140,100,40);
+		l222.setForeground(Color.white);
+		
+		l444=new JLabel("GRADE");
+		l444.setBounds(350,140,100,40);
+		l444.setForeground(Color.white);
+		
+		l555=new JLabel("RESULT");
+		l555.setBounds(480,140,100,40);
+		l555.setForeground(Color.white);
+	   
+		try 
+		{
+			String url = "jdbc:mysql://localhost:3306/result_management";
+			String user_name = "root";
+			String user_password = "mysql@jeffri";
+			String query = "Select * from results";
+			Class.forName("com.mysql.cj.jdbc.Driver");   // It is the method which help to load the class
+			
+			Connection con = DriverManager.getConnection(url,user_name,user_password);     // DriverManager is the class which has getConnection method, getconnection-instance of connection
+			Statement st = con.createStatement();     // createStatement return the object of the Statement
+			ResultSet rs = st.executeQuery(query);    //execute the query and store in rs
+			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData(); //
+			DefaultTableModel table_model=(DefaultTableModel) t.getModel();
+		
+			DefaultTableCellRenderer cr = new DefaultTableCellRenderer();		//for align jtable value center
+			cr.setHorizontalAlignment(SwingConstants.CENTER);
+			
+			int col = rsmd.getColumnCount()-5;   // It count the number of column, To remove the extra column we subtract -5
+			String[] column = new String[col];
+			for(int i=0;i<col;i++)
+				column[i]=rsmd.getColumnName(i+1); // Get the input from mysql table (i.e)column name
+			table_model.setColumnIdentifiers(column); // Print the values in JTable
+			
+			String a,b,d,e;
+			int res_count=0;
+			String res;
+			int arrr[]=new int[n];
+			
+			for(int k=count;k<n;k++)
+			{
+				rs=st.executeQuery("SELECT * FROM results WHERE SI_NO ="+(k+1));
+				rs.next();		// default the pointer point the before value so we use rs.next() to point the correct value
+				res=rs.getString(6);
+				String com="U";
+				
+				if(res.equals(com))
+				{
+					res_count++;
+					int co=res_count-1;
+				arrr[co]=k+1;
+				}
+			}
+			int rowsAffected ;
+			for(int q=count;q<n;q++)
+				rowsAffected = st.executeUpdate("UPDATE results  SET RESULT = 'PASS' WHERE SI_NO = "+(q+1));
+			
+			for(int l=0;l<res_count;l++)
+			{
+				int as=arrr[l];
+				
+				for(int m=count;m<n;m++) 
+					if((m+1)==as) 
+						rowsAffected = st.executeUpdate("UPDATE results  SET RESULT = 'FAIL' WHERE SI_NO = "+as);
+			}
+			for(int j=count;j<n;j++)
+			{
+				rs=st.executeQuery("SELECT * FROM results WHERE SI_NO ="+(j+1));
+				rs.next();
+				a=rs.getString(3);
+				b=rs.getString(4);
+				d=rs.getString(6);
+				e=rs.getString(7);
+				Object[] row = {a,b,d,e};
+				table_model.addRow(row); 
+			}
+				
+			for(int q=count;q<count+1;q++)
+			{
+				rs=st.executeQuery("SELECT * FROM results WHERE SI_NO ="+(q+1));
+				rs.next();
+				JLabel Name=new JLabel("");
+				Name.setBounds(180,30,100,40);
+				String x=rs.getString(8);
+				Name.setText(":  "+x);
+				
+				JLabel Reg_no=new JLabel();
+				Reg_no.setBounds(180,55,200,40);
+				String y=rs.getString(2);
+				Reg_no.setText(":  "+y);
+				
+				JLabel Branch=new JLabel();
+				Branch.setBounds(180,80,600,40);
+				String z=rs.getString(9);
+				Branch.setText(":  "+z);
+				
+				JLabel Arrear=new JLabel();
+				Arrear.setBounds(180,105,200,40);
+				String ae=Integer.toString(res_count);
+				Arrear.setText(":  "+ae);
+
+				f.add(Name);
+				f.add(Reg_no);
+				f.add(Branch);
+				f.add(Arrear);
+			}
+			for(int q=0;q<=col-1;q++)
+				t.getColumnModel().getColumn(q).setCellRenderer(cr);
+			st.close();
+			con.close();
+		}
+		catch(Exception e)
+		{
+			System.out.println(e);
+		}
+		l111.setBackground(Color.red);
+		f.add(l1);
+		f.add(l2);
+		f.add(l3);
+		f.add(l4);
+		f.add(t);
+		f.add(l111);
+		f.add(l222);
+		f.add(l444);
+		f.add(l555);
+		f.add(p);
+		f.setSize(600,400);
+		f.setLayout(null);
+		f.setVisible(true);
+	}
+}
